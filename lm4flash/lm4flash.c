@@ -695,8 +695,8 @@ static void flasher_usage()
 	printf("\t\tPrint version information\n");
 	printf("\t-h\n");
 	printf("\t\tPrint usage information\n");
-	printf("\t-v\n");
-	printf("\t\tEnables verification after write\n");
+	printf("\t-n\n");
+	printf("\t\tDISABLES verification after write\n");
 	printf("\t-s SERIAL\n");
 	printf("\t\tFlash device with the following serial\n");
 }
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
 	const char *rom_name = NULL;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "Vhvs:")) != -1) {
+	while ((opt = getopt(argc, argv, "Vhns:")) != -1) {
 		switch (opt) {
 		case 'V':
 			show_version();
@@ -788,8 +788,8 @@ int main(int argc, char *argv[])
 		case 'h':
 			flasher_usage();
 			return 0;
-		case 'v':
-			do_verify = 1;
+		case 'n':
+			do_verify = 0;
 			break;
 		case 's':
 			serial = optarg;
