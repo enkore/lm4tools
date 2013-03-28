@@ -113,7 +113,7 @@ static uint32_t le32_to_cpu(const uint32_t x)
 	return _tmp.b32;
 }
 
-static int do_verify = 0;
+static int do_verify = 1;
 
 #define cpu_to_le32 le32_to_cpu
 
