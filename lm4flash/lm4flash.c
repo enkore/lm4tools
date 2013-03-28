@@ -471,7 +471,7 @@ static int write_firmware(libusb_device_handle *handle, FILE *f)
 {
 	uint32_t val = 0;
 	uint32_t addr;
-	size_t rdbytes;
+	size_t rdbytes, fw_size = 0;
 	int retval = 0;
 
 	print_icdi_version(handle);
@@ -508,8 +508,10 @@ static int write_firmware(libusb_device_handle *handle, FILE *f)
 	MEM_WRITE(ROMCTL, 0x0);
 	MEM_READ(DHCSR, &val);
 
+	printf("Writing firmware");
 	for (addr = 0; !feof(f); addr += sizeof(flash_block)) {
 		rdbytes = fread(flash_block, 1, sizeof(flash_block), f);
+		fw_size += rdbytes;
 
 		if (rdbytes < sizeof(flash_block) && !feof(f)) {
 			perror("fread");
@@ -522,9 +524,13 @@ static int write_firmware(libusb_device_handle *handle, FILE *f)
 		 */
 		if (rdbytes)
 			FLASH_WRITE(addr, flash_block, rdbytes);
+
+		printf(".");
 	}
+	printf("\nWrote %zu bytes in %zu blocks\n", fw_size, addr / sizeof(flash_block));
 
 	if (do_verify) {
+		printf("Verifying data");
 		fseek(f, 0, SEEK_SET);
 
 		for (addr = 0; !feof(f); addr += sizeof(flash_block)) {
@@ -541,7 +547,10 @@ static int write_firmware(libusb_device_handle *handle, FILE *f)
 				printf("Error verifying flash\n");
 				break;
 			}
+
+			printf(".");
 		}
+		printf("\nVerified %zu blocks\n", addr / sizeof(flash_block));
 	}
 
 	SEND_COMMAND("set vectorcatch 0");
@@ -552,6 +561,8 @@ static int write_firmware(libusb_device_handle *handle, FILE *f)
 	SEND_COMMAND("debug hreset");
 	SEND_COMMAND("set vectorcatch 0");
 	SEND_COMMAND("debug disable");
+
+	printf("MCU reset, success\n");
 
 	return retval;
 }
