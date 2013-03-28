@@ -11,4 +11,7 @@ $(EXE): $(EXE).c
 clean:
 	rm -f *.o $(EXE)
 
+install:
+	install -D -m755 lm4flash /usr/local/bin/lm4flash
+
 .PHONY: all clean
